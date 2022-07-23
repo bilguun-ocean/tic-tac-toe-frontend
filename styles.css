@@ -5,3 +5,37 @@
   margin: 0px;
   box-sizing: border-box;
 }
+
+/* footer support */
+
+body, html {
+  height: 100%;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+}
+
+footer {
+  margin-top: auto;
+}
+
+/* gameboard */
+
+.game-box {
+  background-color: silver;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  width: 50vw;
+  min-width: 600px;
+  justify-self: center;
+  align-self: center;
+}
+
+.game-box .box {
+  text-align: center;
+  border: 1px solid red;
+  padding: 40px;
+}
