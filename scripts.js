@@ -1,31 +1,50 @@
+const createPlayer = (name, mark) => {
+  return {name, mark}
+}
+
+
 const gameBoard = (() => {
-  let board = [
-    ['','O','X'],
-    ['X','O','O'],
-    ['X','X','O']
-  ]
+
+  let _board = ['','','',
+               '','','',
+               '','','']
+
+  const player1 = createPlayer("Player1", "X")
+  const player2 = createPlayer("Player2", "O")
+  let currentPlayer = player1
+
+  const gameBoardBoxes = document.querySelectorAll('.box');
 
   const renderBoard = ()=> {
-    const gameBoardBoxes = document.querySelectorAll('.box');
-    for (let row = 0, index = 0; row < board.length; row++) {
-      for (let column = 0; column < board[row].length; column++, index++) {
-        gameBoardBoxes[index].textContent = board[row][column]
-      }
+    for (let index = 0; index < _board.length; index++) {
+      gameBoardBoxes[index].textContent = _board[index]
     }
   }
 
-  const addMarks = (mark, row, column) => {
-    if (board[row][column] === '')
-      board[row][column] = mark
+  const swapCurrentPlayer = ()=> {
+    currentPlayer = (currentPlayer == player1) ? player2 : player1 
   }
 
-  return {renderBoard, addMarks}
+  const _addMarks = (index) => {
+    let mark = "test"
+    if (_board[index] === '')
+    _board[index] = currentPlayer.mark
+  }
+
+  const gameBoardBoxListener = () => {
+    for(const box of gameBoardBoxes) {
+      const index = box.dataset.index
+      box.addEventListener("click", () => {
+        _addMarks(index)
+        renderBoard()
+        swapCurrentPlayer()
+      })
+    }
+  }
+
+  return {gameBoardBoxListener}
 })();
 
 const displayController = (() => {
-
+  //Public functions 
 })();
-
-const createPlayer = (name) => {
-  
-}
