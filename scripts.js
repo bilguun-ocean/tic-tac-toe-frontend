@@ -7,7 +7,12 @@ const gameBoard = (() => {
 
   let _board = ['','','',
                '','','',
-               '','','']
+               '','',''];
+
+  let latestMark = {
+    mark : '',
+    index : ''
+  }
 
   const player1 = createPlayer("Player1", "X")
   const player2 = createPlayer("Player2", "O")
@@ -21,28 +26,78 @@ const gameBoard = (() => {
     }
   }
 
+  const checkForWin = ()=> {
+    const possibleWins = [ [0, 4 ,8], [6, 4, 2],
+                           [0, 3, 6], [1, 4, 7],
+                           [2, 5, 8], [0, 1, 2], 
+                           [3, 4, 5], [6, 7, 8] ]
+    
+    for (const posWin of possibleWins) {
+      let _found = true
+      for (let element of posWin) {
+        if (_board[element] != latestMark.mark) {
+          _found = false
+          break
+        }
+      }
+      if (_found) {
+        return true
+      }
+    }
+  }
+
+  const checkForTie = ()=> {
+    let _tie = true
+    _board.forEach((box) => {
+      if (box == '')
+        _tie = false
+    })
+    if (_tie && !checkForWin)
+      return true
+    else
+      return false
+  }
+
   const swapCurrentPlayer = ()=> {
     currentPlayer = (currentPlayer == player1) ? player2 : player1 
   }
 
   const _addMarks = (index) => {
-    let mark = "test"
     if (_board[index] === '')
-    _board[index] = currentPlayer.mark
+      _board[index] = currentPlayer.mark
+
+    // Keep track of latest mark and its index for checking game Won
+    latestMark.mark = currentPlayer.mark
+    latestMark.index = index
   }
 
-  const gameBoardBoxListener = () => {
+  const addBoxListeners = () => {
     for(const box of gameBoardBoxes) {
       const index = box.dataset.index
       box.addEventListener("click", () => {
         _addMarks(index)
         renderBoard()
+        if (checkForWin()){
+          console.log(`Game won! Winner is ${currentPlayer.mark}`)
+          disableBoxListeners()
+        }
+        if (checkForTie()){
+          console.log("Game tied!")
+          disableBoxListeners()
+        }
         swapCurrentPlayer()
       })
     }
   }
 
-  return {gameBoardBoxListener}
+  const disableBoxListeners = () => {
+    for( const box of gameBoardBoxes) {
+      let newBox = box.cloneNode(true)
+      box.parentNode.replaceChild(newBox, box)
+    }
+  }
+
+  return {addBoxListeners, latestMark, checkForWin, checkForTie, disableBoxListeners}
 })();
 
 const displayController = (() => {
