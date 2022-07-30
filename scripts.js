@@ -9,10 +9,6 @@ const gameBoard = (() => {
                '','','',
                '','',''];
 
-  let latestMark = {
-    mark : '',
-    index : ''
-  }
 
   const player1 = createPlayer("Player1", "X")
   const player2 = createPlayer("Player2", "O")
@@ -26,16 +22,16 @@ const gameBoard = (() => {
     }
   }
 
-  const checkForWin = ()=> {
+  const _checkForWin = ()=> {
     const possibleWins = [ [0, 4 ,8], [6, 4, 2],
                            [0, 3, 6], [1, 4, 7],
                            [2, 5, 8], [0, 1, 2], 
                            [3, 4, 5], [6, 7, 8] ]
-    
+    // When win is found highlight the background of the 3 in row box
     for (const posWin of possibleWins) {
       let _found = true
       for (let element of posWin) {
-        if (_board[element] != latestMark.mark) {
+        if (_board[element] != currentPlayer.mark) {
           _found = false
           break
         }
@@ -44,15 +40,20 @@ const gameBoard = (() => {
         return true
       }
     }
+    return false
   }
 
-  const checkForTie = ()=> {
+  // Make sure it handles tie
+
+  const _checkForTie = ()=> {
     let _tie = true
     _board.forEach((box) => {
-      if (box == '')
+      if (box == ''){
         _tie = false
+        return
+      }
     })
-    if (_tie && !checkForWin)
+    if (_tie && !_checkForWin())
       return true
     else
       return false
@@ -62,42 +63,48 @@ const gameBoard = (() => {
     currentPlayer = (currentPlayer == player1) ? player2 : player1 
   }
 
-  const _addMarks = (index) => {
-    if (_board[index] === '')
-      _board[index] = currentPlayer.mark
-
-    // Keep track of latest mark and its index for checking game Won
-    latestMark.mark = currentPlayer.mark
-    latestMark.index = index
+  const _addMarks = (box) => {
+    const index = box.dataset.index
+    if (_board[index] != '')
+      return
+    
+    _board[index] = currentPlayer.mark
+    // Displaying the added mark
+    box.textContent = _board[index]
+    // Adding Styling
+    if (currentPlayer.mark === "X")
+    box.classList.add("x")
+    else  
+    box.classList.add("o")
   }
 
   const addBoxListeners = () => {
     for(const box of gameBoardBoxes) {
-      const index = box.dataset.index
       box.addEventListener("click", () => {
-        _addMarks(index)
-        renderBoard()
-        if (checkForWin()){
+        _addMarks(box)
+        if (_checkForWin()){
           console.log(`Game won! Winner is ${currentPlayer.mark}`)
-          disableBoxListeners()
+          _disableBoxListeners()
+          return
         }
-        if (checkForTie()){
+        if (_checkForTie()){
           console.log("Game tied!")
-          disableBoxListeners()
+          _disableBoxListeners()
+          return
         }
         swapCurrentPlayer()
       })
     }
   }
 
-  const disableBoxListeners = () => {
+  const _disableBoxListeners = () => {
     for( const box of gameBoardBoxes) {
       let newBox = box.cloneNode(true)
       box.parentNode.replaceChild(newBox, box)
     }
   }
 
-  return {addBoxListeners, latestMark, checkForWin, checkForTie, disableBoxListeners}
+  return {addBoxListeners}
 })();
 
 const displayController = (() => {
