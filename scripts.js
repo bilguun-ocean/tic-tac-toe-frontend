@@ -16,12 +16,6 @@ const gameBoard = (() => {
 
   const gameBoardBoxes = document.querySelectorAll('.box');
 
-  const renderBoard = ()=> {
-    for (let index = 0; index < _board.length; index++) {
-      gameBoardBoxes[index].textContent = _board[index]
-    }
-  }
-
   const _checkForWin = ()=> {
     const possibleWins = [ [0, 4 ,8], [6, 4, 2],
                            [0, 3, 6], [1, 4, 7],
@@ -42,6 +36,7 @@ const gameBoard = (() => {
     }
     return false
   }
+  
 
   // Make sure it handles tie
 
@@ -59,15 +54,60 @@ const gameBoard = (() => {
       return false
   }
 
-  const swapCurrentPlayer = ()=> {
+  const _swapCurrentPlayer = ()=> {
     currentPlayer = (currentPlayer == player1) ? player2 : player1 
   }
 
-  const _addMarks = (box) => {
-    const index = box.dataset.index
-    if (_board[index] != '')
-      return
-    
+  const _displayReplayButton = ()=> {
+    const replayButton = document.querySelector('#replay-button')
+    replayButton.style.visibility = "visible"
+    replayButton.addEventListener("click", ()=> {
+      _resetMatch()
+    })
+  }
+
+  const _resetClasses = () => {
+    const gameBoardBoxes = document.querySelectorAll('.box');
+    const gameContext = document.querySelector("#context")
+    for (const box of gameBoardBoxes){
+      box.classList.remove("o")
+      box.classList.remove("x")
+    }
+    gameContext.classList.remove("game-won-x")
+    gameContext.classList.remove("game-won-o")
+  }
+
+
+  const _clearBoard = () => {
+    const gameBoardBoxes = document.querySelectorAll('.box');
+    for (const box of gameBoardBoxes){
+      box.textContent = "\u00A0"
+    }
+    for (let index = 0; index < 9; index++)
+      _board[index] = ""
+  }
+
+  const _resetMatch = () => {
+    _clearBoard()
+    _resetClasses()
+    if (currentPlayer.mark === "O")
+      _swapCurrentPlayer()
+    // Disabling replay button
+    const replayButton = document.querySelector("#replay-button")
+    replayButton.style.visibility = "hidden"
+    //
+    startGame()
+  }
+
+  const _displayPlayerTurn = ()=> {
+    const contextDiv = document.querySelector('#context')
+    if (currentPlayer.mark === "X")
+      contextDiv.textContent = "Player X's turn"
+    else
+      contextDiv.textContent = "Player O's turn"
+  }
+
+  const _addMarks = (box, index) => {
     _board[index] = currentPlayer.mark
     // Displaying the added mark
     box.textContent = _board[index]
@@ -78,35 +118,73 @@ const gameBoard = (() => {
     box.classList.add("o")
   }
 
-  const addBoxListeners = () => {
+  const _displayContext = () => {
+    const contextDiv = document.querySelector('#context')
+    if (_checkForTie())
+      contextDiv.textContent = "Game Is Tied!"
+    else{
+      contextDiv.textContent = " has won the game!"
+      if (currentPlayer.mark === "X") {
+        contextDiv.classList.add("game-won-x")
+      } else {
+        contextDiv.classList.add("game-won-o")
+      }
+    }
+
+  }
+
+  const endCurrentMatch = () => {
+    _displayContext()
+    _disableBoxListeners()
+    _displayReplayButton()
+  }
+
+  // Refactor what happens when won or tie
+  const startGame = () => {
+    _displayPlayerTurn()
+    const gameBoardBoxes = document.querySelectorAll('.box');
     for(const box of gameBoardBoxes) {
       box.addEventListener("click", () => {
-        _addMarks(box)
+        const index = box.dataset.index
+
+        // Do not proceed if this box is marked
+        if (_board[index] != ''){
+          return
+        }
+        _addMarks(box, index)
         if (_checkForWin()){
-          console.log(`Game won! Winner is ${currentPlayer.mark}`)
-          _disableBoxListeners()
+          endCurrentMatch()
           return
         }
         if (_checkForTie()){
-          console.log("Game tied!")
-          _disableBoxListeners()
+          endCurrentMatch()
           return
         }
-        swapCurrentPlayer()
+        _swapCurrentPlayer()
+        _displayPlayerTurn()
       })
     }
   }
 
+
   const _disableBoxListeners = () => {
+    const gameBoardBoxes = document.querySelectorAll('.box');
     for( const box of gameBoardBoxes) {
       let newBox = box.cloneNode(true)
       box.parentNode.replaceChild(newBox, box)
     }
   }
 
-  return {addBoxListeners}
+  return {startGame}
 })();
 
 const displayController = (() => {
   //Public functions 
 })();
+
+// 
+gameBoard.startGame()
+
+// Make the replay button work 
+
+// check out the ergonomic laptop stand and keyboard && mouse

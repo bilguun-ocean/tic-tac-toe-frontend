@@ -32,9 +32,14 @@ body {
 
 /* footer */
 footer {
-  background-color: whitesmoke;
+  color: white;
   width: 100%;
   text-align: center;
+  font-size: large;
+}
+footer a, footer a:visited {
+  text-decoration: none;
+  color: white;
 }
 /* gameboard */
 
@@ -52,6 +57,9 @@ footer {
   text-align: center;
   font-size: 4em;
   padding: 25px 40px;
+}
+.game-box .box:hover {
+  filter: brightness(90%);
 }
 
 /* styling & animating mark*/ 
@@ -71,3 +79,56 @@ footer {
   gap: 2em;
   
 }
+
+/* replay button, etc */
+
+.game-context {
+  font-size: x-large;
+  color: wheat;
+  display: flex; 
+  gap: 15px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.game-won-x::before {
+  font-size: x-large;
+  content: "X";
+  color: red;
+}
+
+.game-won-o::before {
+  font-size: x-large;
+  content: "O";
+  color: rgb(127, 187, 255);
+}
+
+
+.game-context button {
+  width: 50px;
+  appearance: none;
+  border: none;
+  background-color: inherit;
+  filter: invert(100%) sepia(99%) saturate(0%) hue-rotate(292deg) brightness(108%) contrast(100%);
+  visibility: hidden;
+}
+/* animating the button */
+
+.game-context button:hover {
+  cursor: pointer;
+  animation-name: restart;
+  animation-duration: 0.4s;
+}
+
+@keyframes restart {
+  0% {transform: rotate(140deg);}
+  25% {transform: rotate(280deg);}
+  50% {transform: rotate(360deg);}
+  75% {transform: rotate(140deg);}
+  100% {transform: rotate(0deg);}
+}
+
+
+
+/* Rotate the replay button when hovered and goes back to its original position "unhovered" */
